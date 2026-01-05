@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: my_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: luminousdragon
+      POSTGRES_PASSWORD: helloworld
+      POSTGRES_DB: myktorchat
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - pgnet
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: my_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: phantuanitmo@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: vcYs#0089
+    ports:
+      - "8000:80"
+    depends_on:
+      - postgres
+    networks:
+      - pgnet
+
+networks:
+  pgnet:
+    driver: bridge
