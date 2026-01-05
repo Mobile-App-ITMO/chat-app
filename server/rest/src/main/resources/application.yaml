@@ -17,6 +17,7 @@ ktor:
             - io.ktor.chat.SignalingKt.signaling
     deployment:
         port: 8080
+        host: 0.0.0.0
 
 jwt:
     audience: audience
