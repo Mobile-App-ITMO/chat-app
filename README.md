@@ -89,6 +89,14 @@ java -version
 docker run --name keydb -p 6379:6379 eqalpha/keydb
 ```
 
+### Emotions llm Docker
+
+```bash
+docker compose -f emoml.yml up -d
+docker exec -it ollama ollama pull mistral:7b-instruct
+docker exec -it ollama ollama list
+```
+
 ### Запуск приложение
 
 - Скачать APK на телефон Android и запустить.
@@ -161,6 +169,10 @@ chat-app
 │  │     │     ├─ ChatApplication.kt
 │  │     │     ├─ client
 │  │     │     │  └─ RemoteList.kt
+│  │     │     ├─ emoml
+│  │     │     │  ├─ EmotionOutput.kt
+│  │     │     │  ├─ SentimentService.kt
+│  │     │     │  └─ StreamingClient.kt
 │  │     │     ├─ messages
 │  │     │     │  ├─ MessageInput.kt
 │  │     │     │  ├─ MessageList.kt
