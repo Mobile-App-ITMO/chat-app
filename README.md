@@ -64,6 +64,32 @@
 - Подключите ваше устройство Android или запустите эмулятор.
 - Нажмите кнопку «Запустить» в Android Studio. (MainActivity)
 
+### macOS
+
+```bash
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+export PATH="$JAVA_HOME/bin:$PATH"
+java -version
+
+xattr -d com.apple.quarantine gradlew
+chmod +x gradlew
+./gradlew :server:rest:run
+```
+
+### Windows
+
+```powershell
+setx JAVA_HOME "C:\Program Files\Java\jdk-21"
+setx PATH "%JAVA_HOME%\bin;%PATH%"
+java -version
+```
+
+### KeyDB (Docker)
+
+```bash
+docker run --name keydb -p 6379:6379 eqalpha/keydb
+```
+
 ## 📖 Руководство пользователя
 
 ### Создание учетной записи
