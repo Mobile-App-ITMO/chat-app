@@ -63,11 +63,6 @@
     gradle :server:rest:run
 ```
 
-### Запуск приложение
-
-- Скачать APK на телефон Android и запустить.
-- Нажмите кнопку «Запустить» в Android Studio. (MainActivity)
-
 ### macOS
 
 ```bash
@@ -88,11 +83,16 @@ setx PATH "%JAVA_HOME%\bin;%PATH%"
 java -version
 ```
 
-### KeyDB (Docker)
+### KeyDB Docker
 
 ```bash
 docker run --name keydb -p 6379:6379 eqalpha/keydb
 ```
+
+### Запуск приложение
+
+- Скачать APK на телефон Android и запустить.
+- Нажмите кнопку «Запустить» в Android Studio. (MainActivity)
 
 ## 📖 Руководство пользователя
 
