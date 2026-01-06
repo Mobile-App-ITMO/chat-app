@@ -7,12 +7,13 @@ import io.ktor.chat.client.*
 
 @Composable
 actual fun createViewModel(chatClient: ChatClient?): ChatViewModel {
+    val server = BuildKonfig.SERVER_URL
+
     return viewModel {
-        val server = BuildKonfig.SERVER_URL
         if (chatClient != null) {
             ChatViewModel(server = server, client = chatClient)
         } else {
             ChatViewModel(server = server)
         }
-    } // TODO save state
+    }
 }

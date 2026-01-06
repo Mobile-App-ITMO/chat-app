@@ -54,6 +54,10 @@
 
 ### Настройка сервера
 
+1. запустить serverChange.bat, это изменяет адрес server в `app.properties`
+
+2. в `cmd`
+
 ```bash
     cd chat-app
     gradle :server:rest:run
@@ -61,7 +65,7 @@
 
 ### Запуск приложение
 
-- Подключите ваше устройство Android или запустите эмулятор.
+- Скачать APK на телефон Android и запустить.
 - Нажмите кнопку «Запустить» в Android Studio. (MainActivity)
 
 ### macOS
