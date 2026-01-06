@@ -40,6 +40,11 @@ import io.ktor.chat.utils.Remote
 import io.ktor.chat.vm.ChatViewModel
 import io.ktor.chat.vm.VideoCallViewModel
 import io.ktor.chat.vm.createViewModel
+import androidx.compose.runtime.mutableStateMapOf
+import io.ktor.chat.emoml.EmotionOutput
+import io.ktor.chat.emoml.SentimentService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -272,16 +277,46 @@ private fun GroupMessagesView(
     messagesRemote: Remote<SnapshotStateList<Message>>,
     onCreate: suspend (String) -> Unit
 ) {
+    val sentiment = SentimentService("http://10.0.2.2:11434")
+    val emotions = remember { mutableStateMapOf<Long, EmotionOutput>() }
+
     RemoteLoader(messagesRemote) { messages ->
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
+
+        LaunchedEffect(messages.map { it.id }) {
+            messages.forEach { msg ->
+                if (msg.id == 0L) return@forEach
+                if (emotions.containsKey(msg.id)) return@forEach
+
+                println("EMO: analyzing msgId=${msg.id} text='${msg.text}'")
+
+                try {
+                    val out = sentiment.analyze(msg.text)
+                    println("EMO: OK msgId=${msg.id} -> $out")
+                    emotions[msg.id] = out
+                } catch (e: Throwable) {
+                    println("EMO: FAIL msgId=${msg.id}")
+                    println("EMO: ${e::class.qualifiedName}")
+                    println("EMO: ${e.message}")
+                    e.printStackTrace()
+
+                    emotions[msg.id] = EmotionOutput(
+                        label = "EMO: error",
+                        confidence = 0f,
+                        tone = EmotionOutput.Tone.NEUTRAL
+                    )
+                }
+            }
+        }
+
+
+        Box(modifier = Modifier.fillMaxSize()) {
             MessageList(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .padding(bottom = 50.dp),
-                messages = messages
+                messages = messages,
+                emotions = emotions
             )
 
             Box(
