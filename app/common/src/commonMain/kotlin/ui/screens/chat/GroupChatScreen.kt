@@ -40,6 +40,13 @@ import io.ktor.chat.utils.Remote
 import io.ktor.chat.vm.ChatViewModel
 import io.ktor.chat.vm.VideoCallViewModel
 import io.ktor.chat.vm.createViewModel
+import androidx.compose.runtime.mutableStateMapOf
+import io.ktor.chat.emoml.EmotionOutput
+import io.ktor.chat.emoml.SentimentService
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.yield
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -272,16 +279,56 @@ private fun GroupMessagesView(
     messagesRemote: Remote<SnapshotStateList<Message>>,
     onCreate: suspend (String) -> Unit
 ) {
+    val sentiment = remember { SentimentService("http://10.0.2.2:11434") }
+    val emotions = remember { mutableStateMapOf<Long, EmotionOutput>() }
+    var analyzeJob by remember { mutableStateOf<Job?>(null) }
+    val scope = rememberCoroutineScope()
+
     RemoteLoader(messagesRemote) { messages ->
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
+
+        LaunchedEffect(messages.map { it.id }) {
+            analyzeJob?.cancel()
+
+            analyzeJob = scope.launch {
+                while (isActive) {
+                    val pending = messages
+                        .asSequence()
+                        .filter { it.id != 0L }
+                        .filterNot { emotions.containsKey(it.id) }
+                        .sortedWith(compareByDescending<Message> { it.created }.thenByDescending { it.id })
+                        .toList()
+
+                    if (pending.isEmpty()) break
+
+                    val msg = pending.first()
+
+                    try {
+                        println("EMO: analyzing newest msgId=${msg.id}")
+                        val out = sentiment.analyze(msg.text)
+                        emotions[msg.id] = out
+                    } catch (e: Throwable) {
+                        e.printStackTrace()
+                        emotions[msg.id] = EmotionOutput(
+                            label = "EMO: error",
+                            confidence = 0f,
+                            tone = EmotionOutput.Tone.NEUTRAL
+                        )
+                    }
+
+                    yield()
+                }
+            }
+        }
+
+
+        Box(modifier = Modifier.fillMaxSize()) {
             MessageList(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .padding(bottom = 50.dp),
-                messages = messages
+                messages = messages,
+                emotions = emotions
             )
 
             Box(

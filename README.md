@@ -38,8 +38,8 @@
 ### Проект клонирования
 
 ```bash
-    git clone https://github.com/Mobile-App-ITMO/chat-app.git
-    cd chat-app
+git clone https://github.com/Mobile-App-ITMO/chat-app.git
+cd chat-app
 ```
 
 ### Настройка среды
@@ -59,8 +59,8 @@
 2. в `cmd`
 
 ```bash
-    cd chat-app
-    gradle :server:rest:run
+cd chat-app
+gradle :server:rest:run
 ```
 
 ### macOS
@@ -87,6 +87,14 @@ java -version
 
 ```bash
 docker run --name keydb -p 6379:6379 eqalpha/keydb
+```
+
+### Emotions llm Docker
+
+```bash
+docker compose -f emoml.yml up -d
+docker exec -it ollama ollama pull mistral:7b-instruct
+docker exec -it ollama ollama list
 ```
 
 ### Запуск приложение
@@ -161,6 +169,10 @@ chat-app
 │  │     │     ├─ ChatApplication.kt
 │  │     │     ├─ client
 │  │     │     │  └─ RemoteList.kt
+│  │     │     ├─ emoml
+│  │     │     │  ├─ EmotionOutput.kt
+│  │     │     │  ├─ SentimentService.kt
+│  │     │     │  └─ StreamingClient.kt
 │  │     │     ├─ messages
 │  │     │     │  ├─ MessageInput.kt
 │  │     │     │  ├─ MessageList.kt

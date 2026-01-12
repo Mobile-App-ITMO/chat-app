@@ -5,6 +5,15 @@
         </encoder>
     </appender>
 
+    <logger name="io.ktor.server" level="INFO"/>
+    <logger name="io.ktor.server.plugins" level="INFO"/>
+    <logger name="io.ktor.server.application" level="INFO"/>
+    <logger name="io.ktor.server.engine" level="INFO"/>
+    <logger name="org.jetbrains.exposed" level="WARN"/>
+    <logger name="io.netty" level="WARN"/>
+    <logger name="io.ktor.server.plugins.di" level="INFO"/>
+    <logger name="io.ktor.server.plugins.di.MapDependencyProvider" level="INFO"/>
+
     <logger name="Exposed" level="DEBUG" />
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
