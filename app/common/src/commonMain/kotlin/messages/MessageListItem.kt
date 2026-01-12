@@ -35,11 +35,12 @@ fun MessageListItem(
                 ) {
                     Text(
                         text = message.author.name,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = message.created.shortened(),
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.surface,
                         fontSize = 12.sp
                     )
                 }
@@ -47,7 +48,8 @@ fun MessageListItem(
 
                 Text(
                     text = message.text,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
                 )
 
 
@@ -91,12 +93,6 @@ fun MessageListItem(
                         )
                     }
                 }
-                    Text(message.author.name, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                    Text(message.created.shortened(), color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
-                }
-
-                // Text
-                Text(message.text, color = MaterialTheme.colorScheme.primary)
             }
         }
     }
