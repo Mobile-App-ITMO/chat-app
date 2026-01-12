@@ -1,12 +1,15 @@
 package io.ktor.chat.ui.screens.login
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,13 +21,19 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun WelcomeView(contents: @Composable ColumnScope.() -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        WelcomeBanner()
-        contents()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.secondary)
+    ){
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            WelcomeBanner()
+            contents()
+        }
     }
 }
 
@@ -37,6 +46,7 @@ fun WelcomeBanner() {
         fontWeight = FontWeight.ExtraBold,
         letterSpacing = 20.sp,
         textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.primary
     )
     Spacer(Modifier.height(30.dp))
 }

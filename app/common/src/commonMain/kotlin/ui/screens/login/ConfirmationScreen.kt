@@ -1,6 +1,7 @@
 package io.ktor.chat.ui.screens.login
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,7 +42,7 @@ fun ConfirmationScreen(vm: ChatViewModel) {
             Text(
                 buildAnnotatedString {
                     append("Please enter the ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
                         append("confirmation code")
                     }
                     append(" we sent you:")

@@ -53,7 +53,8 @@ fun RegisterScreen(vm: ChatViewModel, onBack: () -> Unit) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentWidth(Alignment.CenterHorizontally)
+                        .wrapContentWidth(Alignment.CenterHorizontally),
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Column(

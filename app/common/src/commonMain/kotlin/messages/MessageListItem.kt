@@ -91,6 +91,12 @@ fun MessageListItem(
                         )
                     }
                 }
+                    Text(message.author.name, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    Text(message.created.shortened(), color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
+                }
+
+                // Text
+                Text(message.text, color = MaterialTheme.colorScheme.primary)
             }
         }
     }
