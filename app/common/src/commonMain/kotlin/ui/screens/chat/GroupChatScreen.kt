@@ -43,8 +43,10 @@ import io.ktor.chat.vm.createViewModel
 import androidx.compose.runtime.mutableStateMapOf
 import io.ktor.chat.emoml.EmotionOutput
 import io.ktor.chat.emoml.SentimentService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.yield
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -277,33 +279,43 @@ private fun GroupMessagesView(
     messagesRemote: Remote<SnapshotStateList<Message>>,
     onCreate: suspend (String) -> Unit
 ) {
-    val sentiment = SentimentService("http://10.0.2.2:11434")
+    val sentiment = remember { SentimentService("http://10.0.2.2:11434") }
     val emotions = remember { mutableStateMapOf<Long, EmotionOutput>() }
+    var analyzeJob by remember { mutableStateOf<Job?>(null) }
+    val scope = rememberCoroutineScope()
 
     RemoteLoader(messagesRemote) { messages ->
 
         LaunchedEffect(messages.map { it.id }) {
-            messages.forEach { msg ->
-                if (msg.id == 0L) return@forEach
-                if (emotions.containsKey(msg.id)) return@forEach
+            analyzeJob?.cancel()
 
-                println("EMO: analyzing msgId=${msg.id} text='${msg.text}'")
+            analyzeJob = scope.launch {
+                while (isActive) {
+                    val pending = messages
+                        .asSequence()
+                        .filter { it.id != 0L }
+                        .filterNot { emotions.containsKey(it.id) }
+                        .sortedWith(compareByDescending<Message> { it.created }.thenByDescending { it.id })
+                        .toList()
 
-                try {
-                    val out = sentiment.analyze(msg.text)
-                    println("EMO: OK msgId=${msg.id} -> $out")
-                    emotions[msg.id] = out
-                } catch (e: Throwable) {
-                    println("EMO: FAIL msgId=${msg.id}")
-                    println("EMO: ${e::class.qualifiedName}")
-                    println("EMO: ${e.message}")
-                    e.printStackTrace()
+                    if (pending.isEmpty()) break
 
-                    emotions[msg.id] = EmotionOutput(
-                        label = "EMO: error",
-                        confidence = 0f,
-                        tone = EmotionOutput.Tone.NEUTRAL
-                    )
+                    val msg = pending.first()
+
+                    try {
+                        println("EMO: analyzing newest msgId=${msg.id}")
+                        val out = sentiment.analyze(msg.text)
+                        emotions[msg.id] = out
+                    } catch (e: Throwable) {
+                        e.printStackTrace()
+                        emotions[msg.id] = EmotionOutput(
+                            label = "EMO: error",
+                            confidence = 0f,
+                            tone = EmotionOutput.Tone.NEUTRAL
+                        )
+                    }
+
+                    yield()
                 }
             }
         }

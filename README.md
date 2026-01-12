@@ -38,8 +38,8 @@
 ### Проект клонирования
 
 ```bash
-    git clone https://github.com/Mobile-App-ITMO/chat-app.git
-    cd chat-app
+git clone https://github.com/Mobile-App-ITMO/chat-app.git
+cd chat-app
 ```
 
 ### Настройка среды
@@ -59,8 +59,8 @@
 2. в `cmd`
 
 ```bash
-    cd chat-app
-    gradle :server:rest:run
+cd chat-app
+gradle :server:rest:run
 ```
 
 ### macOS
