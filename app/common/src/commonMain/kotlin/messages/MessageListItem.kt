@@ -40,7 +40,7 @@ fun MessageListItem(
                     )
                     Text(
                         text = message.created.shortened(),
-                        color = MaterialTheme.colorScheme.surface,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 12.sp
                     )
                 }
