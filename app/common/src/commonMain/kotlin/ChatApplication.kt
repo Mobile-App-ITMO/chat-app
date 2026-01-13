@@ -108,7 +108,7 @@ fun ChatApplication(chatVm: ChatViewModel = createViewModel(), videoCallVm: Vide
                 chatVm.room.value = null
             }
             else -> {
-                // 其他界面不做特殊处理
+                // для других скрины
             }
         }
     }

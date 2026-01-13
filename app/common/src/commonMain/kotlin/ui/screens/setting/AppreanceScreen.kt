@@ -1,4 +1,3 @@
-// io/ktor/chat/ui/screens/setting/AppearanceScreen.kt
 package io.ktor.chat.ui.screens.setting
 
 import androidx.compose.foundation.background
@@ -13,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.ktor.chat.ui.components.BackIcon
 import io.ktor.chat.ui.theme.Radius
@@ -23,7 +23,6 @@ import io.ktor.chat.ui.theme.ThemeManager
 fun AppearanceScreen(
     onBack: () -> Unit
 ) {
-    // 使用 ThemeManager 的属性
     val isDarkTheme = ThemeManager.isDarkTheme
     val useSystemTheme = ThemeManager.useSystemTheme
 
@@ -54,7 +53,7 @@ fun AppearanceScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = Space.lg),
+                .padding(horizontal = Space.md),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface,
             ),
@@ -65,34 +64,37 @@ fun AppearanceScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(Space.md),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                    Icon(
+                        imageVector = Icons.Filled.Devices,
+                        contentDescription = "System Theme",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(28.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(Space.sm))
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = Space.sm)
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.Devices,
-                            contentDescription = "System Theme",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(28.dp)
+                        Text(
+                            text = "Follow System Theme",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
 
-                        Spacer(modifier = Modifier.width(Space.md))
-
-                        Column {
-                            Text(
-                                text = "Follow System Theme",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-
-                            Text(
-                                text = "Use device's light/dark mode settings",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                            )
-                        }
+                        Text(
+                            text = "Use device's light/dark mode settings",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
 
                     Switch(

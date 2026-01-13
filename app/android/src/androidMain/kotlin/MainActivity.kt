@@ -49,19 +49,16 @@ fun createVideoCallVm(ctx: Context, http: () -> HttpClient): VideoCallViewModel 
 }
 
 class MainActivity : ComponentActivity() {
-    // Required permissions for video calls
+
+
     private val requiredPermissions = arrayOf(
         Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO
     )
-
-    // State to track if permissions are granted
     private val permissionsGranted = mutableStateOf(false)
 
-    // Permission request launcher
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        // Check if all required permissions are granted
         permissionsGranted.value = permissions.entries.all { it.value }
     }
 
@@ -70,7 +67,6 @@ class MainActivity : ComponentActivity() {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }.toTypedArray()
 
-        // Request the permissions
         requestPermissionLauncher.launch(permissionsToRequest)
     }
 
@@ -107,7 +103,7 @@ class MainActivity : ComponentActivity() {
 
             val appText = try {
                 val packageInfo = packageManager.getPackageInfo(packageName, 0)
-                "v${packageInfo.versionName} (${packageInfo.versionCode})"
+                "v${packageInfo.versionName}"
             } catch (e: Exception) {
                 "Unknown"
             }
@@ -119,10 +115,10 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Check and request permissions early
         checkAndRequestPermissions()
 
         setContent {
@@ -141,7 +137,6 @@ class MainActivity : ComponentActivity() {
                 refreshSystemInfo()
             }
 
-            // Use LaunchedEffect to check permissions status when the app starts
             LaunchedEffect(Unit) {
                 checkAndRequestPermissions()
             }

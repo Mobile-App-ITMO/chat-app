@@ -186,7 +186,6 @@ fun GroupChatScreen(
             )
 
             GroupMessagesView(
-                selectedRoom = selectedRoom!!,
                 messagesRemote = messagesRemote,
                 onCreate = { messageText ->
                     scope.launch {
@@ -275,7 +274,6 @@ private fun ChatTopBar(
 
 @Composable
 private fun GroupMessagesView(
-    selectedRoom: Membership,
     messagesRemote: Remote<SnapshotStateList<Message>>,
     onCreate: suspend (String) -> Unit
 ) {

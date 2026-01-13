@@ -33,8 +33,6 @@ class LocalStorage(private val delegate: StorageDelegate? = null) {
             instance = null
         }
     }
-
-    // 状态管理
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()
 
