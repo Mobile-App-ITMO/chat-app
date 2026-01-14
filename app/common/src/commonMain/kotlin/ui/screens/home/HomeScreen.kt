@@ -41,7 +41,8 @@ sealed class HomeTab(
 @Composable
 fun HomeScreen(
     vm: ChatViewModel,
-    videoCallVM: VideoCallViewModel? = null
+    videoCallVM: VideoCallViewModel? = null,
+    onRefreshSystemInfo: () -> Unit = {}
 ) {
     var selectedTab by remember { mutableStateOf<HomeTab>(HomeTab.Home) }
     var showCreateRoomDialog by remember { mutableStateOf(false) }
@@ -158,7 +159,7 @@ fun HomeScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             when (selectedTab) {
                 HomeTab.Home -> {
@@ -173,11 +174,15 @@ fun HomeScreen(
                     Text(
                         text = "Friends Content",
                         modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
                 HomeTab.Settings -> {
-                    SettingsList(vm)
+                    SettingsList(
+                        vm = vm,
+                        onRefreshSystemInfo = onRefreshSystemInfo
+                    )
                 }
             }
         }

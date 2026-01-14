@@ -27,7 +27,7 @@ sealed class AppScreen {
 }
 
 @Composable
-fun ChatApplication(chatVm: ChatViewModel = createViewModel(), videoCallVm: VideoCallViewModel?) {
+fun ChatApplication(chatVm: ChatViewModel = createViewModel(), videoCallVm: VideoCallViewModel?, onRefreshSystemInfo: () -> Unit = {}) {
     val loggedInUser by remember { chatVm.loggedInUser }
     val confirmation by remember { chatVm.confirmation }
     val selectedRoom by remember { chatVm.room }
@@ -51,6 +51,8 @@ fun ChatApplication(chatVm: ChatViewModel = createViewModel(), videoCallVm: Vide
             val previousScreen = navigationHistory.removeAt(navigationHistory.size - 1)
             currentScreen = previousScreen
             println("Navigated back to $previousScreen")
+        } else {
+            currentScreen = AppScreen.Home
         }
     }
 
@@ -106,7 +108,7 @@ fun ChatApplication(chatVm: ChatViewModel = createViewModel(), videoCallVm: Vide
                 chatVm.room.value = null
             }
             else -> {
-                // 其他界面不做特殊处理
+                // для других скрины
             }
         }
     }

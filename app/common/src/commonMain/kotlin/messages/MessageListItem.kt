@@ -35,11 +35,25 @@ fun MessageListItem(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = message.author.name, fontWeight = FontWeight.Bold)
-                    Text(text = message.created.shortened(), color = Color.Gray, fontSize = 12.sp)
+                    Text(
+                        text = message.author.name,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = message.created.shortened(),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 12.sp
+                    )
                 }
 
-                Text(text = message.text, style = MaterialTheme.typography.bodyMedium)
+
+                Text(
+                    text = message.text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
 
                 when {
                     emotion == null || emotion.label.startsWith("EMO: pending", ignoreCase = true) -> {

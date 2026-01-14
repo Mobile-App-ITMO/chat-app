@@ -7,14 +7,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Dataset
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,107 +26,131 @@ import androidx.compose.ui.unit.dp
 import io.ktor.chat.ui.theme.Space
 import io.ktor.chat.vm.ChatViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import io.ktor.chat.ui.screens.setting.AppearanceScreen
+import io.ktor.chat.ui.screens.setting.ProfileScreen
+import io.ktor.chat.ui.screens.setting.DataScreen
 
 @Composable
-fun SettingsList(vm: ChatViewModel) {
+fun SettingsList(vm: ChatViewModel, onRefreshSystemInfo: () -> Unit) {
     val loggedInUser by vm.loggedInUser
     val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(vertical = 8.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 24.dp)
-        ) {
-            Box(
+    var showProfile by remember { mutableStateOf(false) }
+    var showDataScreen by remember { mutableStateOf(false) }
+    var showAppearance by remember { mutableStateOf(false) }
+
+    when {
+        showProfile -> {
+            ProfileScreen(
+                vm = vm,
+                onBack = { showProfile = false }
+            )
+        }
+        showDataScreen -> {
+            DataScreen(
+                vm = vm,
+                onRefreshSystemInfo = onRefreshSystemInfo,
+                onBack = { showDataScreen = false }
+            )
+        }
+        showAppearance -> {
+            AppearanceScreen(
+                onBack = { showAppearance = false }
+            )
+        }
+        else -> {
+            Column(
                 modifier = Modifier
-                    .size(96.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.outlineVariant)
-                    .padding(20.dp)
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(vertical = 8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Person,
-                    contentDescription = "User Avatar",
-                    modifier = Modifier.fillMaxSize(),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = loggedInUser?.name ?: "Guest",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        SettingCategory(title = "Account") {
-            SettingItem(
-                title = "Profile",
-                icon = Icons.Outlined.Person,
-                onClick = { /* 导航到个人资料页面 */ }
-            )
-
-            SettingItem(
-                title = "Data",
-                icon = Icons.Outlined.Lock,
-                onClick = { /* 导航到数据设置页面 */ }
-            )
-        }
-
-        SettingCategory(title = "Preferences") {
-            SettingItem(
-                title = "Notifications",
-                icon = Icons.Outlined.Notifications,
-                onClick = { /* 导航到通知设置页面 */ }
-            )
-
-            SettingItem(
-                title = "Appearance",
-                icon = Icons.Outlined.Palette,
-                onClick = { /* 导航到外观设置页面 */ }
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp, vertical = 16.dp)
-        ) {
-            TextButton(
-                onClick = {
-                    scope.launch {
-                        vm.logout()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(96.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.outlineVariant)
+                            .padding(20.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = "User Avatar",
+                            modifier = Modifier.fillMaxSize(),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
-                },
-                modifier = Modifier.align(Alignment.Center),
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Logout,
-                    contentDescription = "Logout",
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Logout",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = loggedInUser?.name ?: "Guest",
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                SettingCategory(title = "Account") {
+                    SettingItem(
+                        title = "Profile",
+                        icon = Icons.Outlined.Person,
+                        onClick = { showProfile = true }
+                    )
+
+                    SettingItem(
+                        title = "Data",
+                        icon = Icons.Outlined.Dataset,
+                        onClick = { showDataScreen = true }
+                    )
+                }
+
+                SettingCategory(title = "Preferences") {
+                    SettingItem(
+                        title = "Appearance",
+                        icon = Icons.Outlined.Palette,
+                        onClick = { showAppearance = true }
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp, vertical = 16.dp)
+                ) {
+                    TextButton(
+                        onClick = {
+                            scope.launch {
+                                vm.logout()
+                            }
+                        },
+                        modifier = Modifier.align(Alignment.Center),
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = "Logout",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Logout",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
         }
     }

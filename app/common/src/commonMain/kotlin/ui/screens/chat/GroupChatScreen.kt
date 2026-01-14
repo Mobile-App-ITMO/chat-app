@@ -165,19 +165,16 @@ fun GroupChatScreen(
                 }
             )
 
-            if (selectedRoom != null) {
-                GroupMessagesView(
-                    selectedRoom = selectedRoom!!,
-                    messagesRemote = messagesRemote,
-                    onCreate = { messageText ->
-                        scope.launch {
-                            vm.messages.create(
-                                Message(
-                                    author = currentUser!!,
-                                    created = Clock.System.now(),
-                                    room = selectedRoom!!.room.id,
-                                    text = messageText
-                                )
+            GroupMessagesView(
+                messagesRemote = messagesRemote,
+                onCreate = { messageText ->
+                    scope.launch {
+                        vm.messages.create(
+                            Message(
+                                author = currentUser!!,
+                                created = Clock.System.now(),
+                                room = selectedRoom!!.room.id,
+                                text = messageText,
                             )
                         }
                     }
@@ -254,7 +251,6 @@ private fun ChatTopBar(
 
 @Composable
 private fun GroupMessagesView(
-    selectedRoom: Membership,
     messagesRemote: Remote<SnapshotStateList<Message>>,
     onCreate: suspend (String) -> Unit
 ) {

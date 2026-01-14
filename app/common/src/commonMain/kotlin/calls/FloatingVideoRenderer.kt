@@ -19,13 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.ktor.client.webrtc.*
 
-/**
- * Displays a floating video renderer with username overlay.
- *
- * @param videoTrack The video track to render
- * @param userName The name to display for this video (default is empty)
- * @param modifier Modifier for styling
- */
+
 @Composable
 fun FloatingVideoRenderer(
     videoTrack: WebRtcMedia.VideoTrack,
@@ -36,14 +30,12 @@ fun FloatingVideoRenderer(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Video card
         Card(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.weight(1f)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-                // Video track rendering
                 VideoRenderer(
                     modifier = Modifier
                         .fillMaxSize()
@@ -53,7 +45,6 @@ fun FloatingVideoRenderer(
             }
         }
 
-        // Username below the video
         if (userName.isNotEmpty()) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(

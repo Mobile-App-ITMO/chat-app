@@ -48,7 +48,6 @@ fun VideoCallScreen(vm: VideoCallViewModel, chatVm: ChatViewModel) {
             onVideoCallInitiated = null
         )
 
-        // Main content area for video tracks
         Box(
             modifier = Modifier.fillMaxSize().padding(top = 50.dp, bottom = 80.dp) // Space for controls
         ) {
@@ -77,13 +76,12 @@ fun VideoCallScreen(vm: VideoCallViewModel, chatVm: ChatViewModel) {
 
             } else {
                 val maxWidth = cellSize * rowSize + padding * (rowSize - 1)
-                // Create a responsive grid layout
                 FlowRow(
                     modifier = Modifier
                         .padding(8.dp)
                         .width(maxWidth)
                         .align(Alignment.Center),
-                    maxItemsInEachRow = 2, // Adjust based on screen size
+                    maxItemsInEachRow = 2,
                 ) {
                     val tracks = if (callMediaState.isCameraEnabled && localVideoTrack != null) {
                         remoteVideoTracks + ("You" to localVideoTrack!!)
@@ -104,7 +102,6 @@ fun VideoCallScreen(vm: VideoCallViewModel, chatVm: ChatViewModel) {
             }
         }
 
-        // Call controls at the bottom
         VideoCallControls(
             modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter).padding(bottom = 16.dp),
             callMediaState = callMediaState,

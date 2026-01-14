@@ -45,7 +45,6 @@ fun RoomHeader(
 
             Spacer(Modifier.weight(1f))
 
-            // Video call button
             if (onVideoCallInitiated != null) {
                 IconButton(onClick = {
                     coroutineScope.launch { onVideoCallInitiated() }

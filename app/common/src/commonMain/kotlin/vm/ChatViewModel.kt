@@ -28,6 +28,9 @@ class ChatViewModel(
     )
     val room = mutableStateOf(room)
     val screenSize = mutableStateOf(Pair(-1, -1))
+    val memoryInfo = mutableStateOf("Tap refresh to load")
+    val storageInfo = mutableStateOf("Tap refresh to load")
+    val appInfo = mutableStateOf("Tap refresh to load")
 
     suspend fun verify(): Boolean =
         try {
