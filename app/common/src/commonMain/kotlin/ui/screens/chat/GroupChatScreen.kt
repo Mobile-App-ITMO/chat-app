@@ -176,13 +176,14 @@ fun GroupChatScreen(
                                 room = selectedRoom!!.room.id,
                                 text = messageText,
                             )
+                        )
                         }
                     }
                 )
             }
         }
     }
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
