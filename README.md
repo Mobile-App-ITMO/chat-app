@@ -97,7 +97,14 @@ docker exec -it ollama ollama pull mistral:7b-instruct
 docker exec -it ollama ollama list
 ```
 
-### Запуск приложение
+### Performance Testing
+Предварительно убедиться, что запущен сервер и поднят KeyDB
+```bash
+./gradlew load-service:gatlingRun
+```
+После компиляции появится выбор сценариев. Надо ввести в консоль число
+
+### Запуск приложения
 
 - Скачать APK на телефон Android и запустить.
 - Нажмите кнопку «Запустить» в Android Studio. (MainActivity)
