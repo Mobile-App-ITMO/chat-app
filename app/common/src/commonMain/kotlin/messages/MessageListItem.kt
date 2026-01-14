@@ -1,6 +1,10 @@
 package io.ktor.chat.messages
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,47 +31,32 @@ fun MessageListItem(
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-
-
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = message.author.name,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = message.created.shortened(),
-                        color = Color.Gray,
-                        fontSize = 12.sp
-                    )
+                    Text(text = message.author.name, fontWeight = FontWeight.Bold)
+                    Text(text = message.created.shortened(), color = Color.Gray, fontSize = 12.sp)
                 }
 
-
-                Text(
-                    text = message.text,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
+                Text(text = message.text, style = MaterialTheme.typography.bodyMedium)
 
                 when {
-                    emotion == null -> {
+                    emotion == null || emotion.label.startsWith("EMO: pending", ignoreCase = true) -> {
                         Text(
                             text = "EMO: pending",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.outline
                         )
                     }
 
-                    emotion.label.startsWith("EMO", ignoreCase = true) -> {
-                        // error/debug state
+                    emotion.label.startsWith("EMO:", ignoreCase = true) -> {
                         Text(
-                            text = "EMO ERROR · ${emotion.tone.name} · ${(emotion.confidence * 100).toInt()}%",
+                            text = "EMO ERROR",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.Red
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFC62828)
                         )
                     }
 
@@ -75,11 +64,13 @@ fun MessageListItem(
                         val emotionColor = when (emotion.label) {
                             "Сарказм" -> Color(0xFFB26A00)
                             "Раздражение", "Злость" -> Color(0xFFC62828)
-                            "Усталость" -> Color(0xFF546E7A)
+                            "Усталость" -> Color(0xFF455A64)
                             "Грусть" -> Color(0xFF1565C0)
                             "Радость" -> Color(0xFF2E7D32)
                             "Тревога" -> Color(0xFF6A1B9A)
-                            "Монотонность", "Нейтрально" -> Color(0xFF757575)
+                            "Отвращение" -> Color(0xFF2F3B2F)
+                            "Удивление" -> Color(0xFF00838F)
+                            "Монотонность", "Нейтрально" -> Color(0xFF616161)
                             else -> MaterialTheme.colorScheme.primary
                         }
 

@@ -1,13 +1,7 @@
 package io.ktor.chat.ui.screens.chat
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
@@ -25,28 +19,29 @@ import io.ktor.chat.JoinCall
 import io.ktor.chat.Membership
 import io.ktor.chat.Message
 import io.ktor.chat.Room
-import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import io.ktor.chat.client.listInRoom
 import io.ktor.chat.client.remoteListWithUpdates
-import io.ktor.chat.ui.components.RemoteLoader
+import io.ktor.chat.emoml.EmotionOutput
+import io.ktor.chat.emoml.SentimentService
 import io.ktor.chat.messages.MessageInput
 import io.ktor.chat.messages.MessageList
 import io.ktor.chat.rooms.EditRoomDialog
 import io.ktor.chat.ui.components.IconDropdownButton
 import io.ktor.chat.ui.components.MenuItem
+import io.ktor.chat.ui.components.RemoteLoader
 import io.ktor.chat.utils.Done
 import io.ktor.chat.utils.Remote
 import io.ktor.chat.vm.ChatViewModel
 import io.ktor.chat.vm.VideoCallViewModel
 import io.ktor.chat.vm.createViewModel
-import androidx.compose.runtime.mutableStateMapOf
-import io.ktor.chat.emoml.EmotionOutput
-import io.ktor.chat.emoml.SentimentService
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.yield
-
+import kotlinx.datetime.Clock
+import kotlin.collections.ArrayDeque
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,9 +97,7 @@ fun GroupChatScreen(
         AlertDialog(
             onDismissRequest = {
                 showIncomingCallDialog = false
-                scope.launch {
-                    videoCallVM?.rejectCall(callingRequest!!)
-                }
+                scope.launch { videoCallVM?.rejectCall(callingRequest!!) }
             },
             title = { Text("Incoming Call") },
             text = { Text("${callingRequest!!.sender.name} is calling. Do you want to join?") },
@@ -113,25 +106,17 @@ fun GroupChatScreen(
                     onClick = {
                         showIncomingCallDialog = false
                         selectedRoom = existingRoomWithId(callingRequest!!.roomId) ?: return@Button
-                        scope.launch {
-                            videoCallVM?.acceptCall(callingRequest!!)
-                        }
+                        scope.launch { videoCallVM?.acceptCall(callingRequest!!) }
                     }
-                ) {
-                    Text("Accept")
-                }
+                ) { Text("Accept") }
             },
             dismissButton = {
                 Button(
                     onClick = {
                         showIncomingCallDialog = false
-                        scope.launch {
-                            videoCallVM?.rejectCall(callingRequest!!)
-                        }
+                        scope.launch { videoCallVM?.rejectCall(callingRequest!!) }
                     }
-                ) {
-                    Text("Decline")
-                }
+                ) { Text("Decline") }
             }
         )
     }
@@ -146,19 +131,14 @@ fun GroupChatScreen(
             ChatTopBar(
                 selectedRoom = selectedRoom,
                 onBack = {
-                    scope.launch {
-                        videoCallVM?.reinitSession()
-                    }
+                    scope.launch { videoCallVM?.reinitSession() }
                     onBack()
                 },
                 onVideoCallInitiated = {
                     if (selectedRoom != null) {
-                        scope.launch {
-                            videoCallVM?.initiateCall(selectedRoom!!.room.id)
-                        }
+                        scope.launch { videoCallVM?.initiateCall(selectedRoom!!.room.id) }
                     }
                 },
-
                 onLeaveRoom = {
                     selectedRoom?.let { membership ->
                         scope.launch {
@@ -185,22 +165,24 @@ fun GroupChatScreen(
                 }
             )
 
-            GroupMessagesView(
-                selectedRoom = selectedRoom!!,
-                messagesRemote = messagesRemote,
-                onCreate = { messageText ->
-                    scope.launch {
-                        vm.messages.create(
-                            Message(
-                                author = currentUser!!,
-                                created = Clock.System.now(),
-                                room = selectedRoom!!.room.id,
-                                text = messageText,
+            if (selectedRoom != null) {
+                GroupMessagesView(
+                    selectedRoom = selectedRoom!!,
+                    messagesRemote = messagesRemote,
+                    onCreate = { messageText ->
+                        scope.launch {
+                            vm.messages.create(
+                                Message(
+                                    author = currentUser!!,
+                                    created = Clock.System.now(),
+                                    room = selectedRoom!!.room.id,
+                                    text = messageText
+                                )
                             )
-                        )
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }
@@ -218,9 +200,9 @@ private fun ChatTopBar(
     TopAppBar(
         title = {
             Text(
-                    text = selectedRoom?.room?.name ?: "Select a Room",
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(end = 8.dp)
+                text = selectedRoom?.room?.name ?: "Select a Room",
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(end = 8.dp)
             )
         },
         navigationIcon = {
@@ -258,10 +240,7 @@ private fun ChatTopBar(
                     modifier = Modifier.size(32.dp)
                 )
 
-                IconButton(
-                    onClick = onVideoCallInitiated,
-                    enabled = true
-                ) {
+                IconButton(onClick = onVideoCallInitiated, enabled = true) {
                     Icon(
                         imageVector = Icons.Default.Videocam,
                         contentDescription = "Video Call",
@@ -280,46 +259,49 @@ private fun GroupMessagesView(
     onCreate: suspend (String) -> Unit
 ) {
     val sentiment = remember { SentimentService("http://10.0.2.2:11434") }
-    val emotions = remember { mutableStateMapOf<Long, EmotionOutput>() }
-    var analyzeJob by remember { mutableStateOf<Job?>(null) }
+    val emotions = remember { mutableStateMapOf<Long, EmotionOutput?>() }
+
+    val mutex = remember { Mutex() }
+    val queue = remember { ArrayDeque<Message>() }
+    var job by remember { mutableStateOf<Job?>(null) }
+
     val scope = rememberCoroutineScope()
 
-    RemoteLoader(messagesRemote) { messages ->
-
-        LaunchedEffect(messages.map { it.id }) {
-            analyzeJob?.cancel()
-
-            analyzeJob = scope.launch {
-                while (isActive) {
-                    val pending = messages
-                        .asSequence()
-                        .filter { it.id != 0L }
-                        .filterNot { emotions.containsKey(it.id) }
-                        .sortedWith(compareByDescending<Message> { it.created }.thenByDescending { it.id })
-                        .toList()
-
-                    if (pending.isEmpty()) break
-
-                    val msg = pending.first()
-
-                    try {
-                        println("EMO: analyzing newest msgId=${msg.id}")
-                        val out = sentiment.analyze(msg.text)
-                        emotions[msg.id] = out
-                    } catch (e: Throwable) {
-                        e.printStackTrace()
-                        emotions[msg.id] = EmotionOutput(
-                            label = "EMO: error",
-                            confidence = 0f,
-                            tone = EmotionOutput.Tone.NEUTRAL
-                        )
-                    }
-
-                    yield()
-                }
+    fun startWorker(messages: List<Message>) {
+        if (job?.isActive == true) return
+        job = scope.launch {
+            while (isActive) {
+                val msg = mutex.withLock { if (queue.isEmpty()) null else queue.removeFirst() } ?: break
+                val out = runCatching { sentiment.analyze(msg.text) }
+                    .getOrElse { EmotionOutput("EMO: error", 0f, EmotionOutput.Tone.NEUTRAL) }
+                emotions[msg.id] = out
+                yield()
             }
         }
+    }
 
+    fun enqueueNewestFirst(messages: List<Message>) {
+        val newOnes = messages
+            .asSequence()
+            .filter { it.id != 0L }
+            .filter { emotions[it.id] == null }
+            .sortedWith(compareByDescending<Message> { it.created }.thenByDescending { it.id })
+            .toList()
+
+        scope.launch {
+            mutex.withLock {
+                for (m in newOnes) {
+                    if (queue.none { it.id == m.id }) queue.addLast(m)
+                }
+            }
+            startWorker(messages)
+        }
+    }
+
+    RemoteLoader(messagesRemote) { messages ->
+        LaunchedEffect(messages.size) {
+            enqueueNewestFirst(messages)
+        }
 
         Box(modifier = Modifier.fillMaxSize()) {
             MessageList(
@@ -328,7 +310,7 @@ private fun GroupMessagesView(
                     .fillMaxHeight()
                     .padding(bottom = 50.dp),
                 messages = messages,
-                emotions = emotions
+                emotions = emotions.filterValues { it != null }.mapValues { it.value!! }
             )
 
             Box(
